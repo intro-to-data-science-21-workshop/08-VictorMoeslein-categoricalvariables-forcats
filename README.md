@@ -1,35 +1,36 @@
-# 08-VictorMoeslein-categoricalvariables
+# Working with categorical variables in R using forcats
 
-Categorical variables with forcats
+## Summary
 
-**Summary**
+This repository provides materials for a session that is part of the [I2DS Tools for Data Science workshop](https://github.com/intro-to-data-science-21-workshop) run at the [Hertie School, Berlin](https://www.hertie-school.org/en/) in November 2021. The student-run workshop is part of the course [Introduction to Data Science](https://github.com/intro-to-data-science-21) taught by Simon Munzert at the Hertie School, Berlin, in Fall 2021.
 
-This repository provides materials for a session that is part of the I2DS Tools for Data Science workshop run at the Hertie School, Berlin in November 2021. The student-run workshop is part of the course Introduction to Data Science taught by Simon Munzert at the Hertie School, Berlin, in Fall 2021.
 
-**Session contents**
+## Session contents 
 
 This session will introduce you to manipulating categorical variables in R using forcats. forcats is the R package to work with factors. A factor is the R data structure for categorical data, that is, variables having a fixed and known set of possible values.
 Factors are also useful when working with character vectors, such as reordering them to improve visualizations.
 
-**Main learning objectives**
+## Main learning objectives
 
 The goals of this session are to (1) equip you with conceptual knowledge about factors and the forcats package (2) show you the five key functions of the pacakge, and (3) provide you with practice material as well as some further readings.
 
-**Instructors**
+## Instructors
 
-Janine De Vera
+- Janine De Vera
+- Victor Möslein
 
-Victor Möslein
+## Further resources
 
-**Further resources**
+- [forcats overview at forcats.tidyverse.org](https://forcats.tidyverse.org)
+- [R for Data Science book - part on Factors](https://r4ds.had.co.nz/factors.html#factors)
+- [Wrangling categorical data with R](https://peerj.com/preprints/3163/) 
 
-forcats Overview at forcats.tidyverse.org
+## License
 
-R for Data Science book - part on Factors
+The material in this repository is made available under the [MIT license](http://opensource.org/licenses/mit-license.php). 
 
-The material in this repository is made available under the MIT license.
+## Statement of contributions
 
-**Statement of contributions**
+**Janine De Vera** mainly prepared the presentation slides and recording.
 
-Janine De Vera mainly prepared the presentation slides and recording. 
-Victor Möslein mainly prepared the tutorial/ practice material and post-processed the recording.
+**Victor Möslein** mainly prepared the tutorial/ practice material and post-processed the recording.
