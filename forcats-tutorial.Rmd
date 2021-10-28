@@ -79,10 +79,15 @@ data %>% count(rincome)
 Alternatively, we can also draw a bar chart to see the levels.
 
 ```{r}
+# This code just makes all the following graphs nicer to look at.
+enhance_theme <- theme_minimal() + 
+  theme(panel.grid.major.x = element_blank() , 
+        panel.grid.major.y = element_line( size=.1, color="black" ))
 
 ggplot(data, aes(rincome)) +
-  geom_bar() 
-
+  geom_bar() + 
+  enhance_theme
+  
 ```
 
 We already see a challenge arising here: the factor has too many levels, which makes the plot look really messy. Soon, we will find out how to deal with issues like these.
@@ -96,48 +101,65 @@ When working with factors, the two main operations are
 The functions of `forcats` are built to deal with these two tasks, which we will do now.
 In this tutorial, we will focus on the application of the functions in plots to make the functionalities more visual.
 
-# Exercises `r emo::ji("worker")`
+# Exercises `r emo::ji("hammer")`
 
-**Task 1** Investigate the average age across the party identifications. Reorder the levels so that the overall trend becomes easily visible. Plot the result in a graph.
+**Task 1** Investigate the average age across the party identifications and plot the result in a graph. Reorder the levels so that the overall trend becomes easily visible.
 
 ```{r}
-
+# First, we create a new dataframe that includes the average ages.
 partyid_age_average <- data %>%
   group_by(partyid) %>%
   summarize(
     age = mean(age, na.rm = TRUE)
   )
 
-ggplot(partyid_age_average, aes(age, fct_reorder(partyid, age))) + geom_point()
+# Then we use the fct_reorder() function in the y-axis description of the plot aesthetics 
+# to have the party identification with the highest average age 
+# on top and the lowest on the bottom.
+ggplot(partyid_age_average, aes(age, fct_reorder(partyid, age))) + 
+  geom_point() + 
+  enhance_theme
 
 ```
 
 Note that fct_reorder() is only useful if the factor has levels that aren't already ordered. For example, it wouldn't make sense to reorder the levels of the rincome variable in this dataset, as its levels are already ordered.
 
-**Task 2** Investigate the average number of hours spent watching tv per day across the income groups. Pull the "Not applicable" level to the front. Plot the result in a graph.
+**Task 2** Investigate the average number of hours spent watching TV per day across the reported income groups and plot the result in a graph. Pull the "Not applicable" level to the front. 
 
 ```{r}
-
-rincome_age_average <- data %>%
+# Again, we create a dataframe first that shows the average hours spent watching TV per 
+# reported income group.
+rincome_tv_average <- data %>%
   group_by(rincome) %>%
   summarize(
     tvhours = mean(tvhours, na.rm = TRUE)
   )
 
-ggplot(rincome_age_average, aes(tvhours, fct_relevel(rincome, "Not applicable"))) + geom_point()
+# We then use fct_relevel() in the y-axis description of the plot aesthetics to pull
+# "Not applicable" to the bottom.
+ggplot(rincome_tv_average, aes(tvhours, fct_relevel(rincome, "Not applicable"))) + 
+  geom_point() + 
+  enhance_theme
 
 ```
 
 **Task 3** Provide a bar chart showing the three largest levels of the `relig` factor in increasing order. Aggregate the other religions into an "Other" level.
 
 ```{r}
-
+# We create a new dataframe, where we aggregate the smaller religions together into
+# an "Other" level using fct_lump(), keeping the 3 largest religions.
+# Then we use fct_infreq() to sort the data in increasing order of the frequencies,
+# and fct_rev() to make the largest level appear on the right in the plot and the 
+# lowest on the left.
 religion_count <- data %>%
   mutate(relig = fct_lump(relig, n = 3) %>% 
            fct_infreq() %>% 
            fct_rev())
 
-ggplot(religion_count, aes(relig)) + geom_bar() 
+# Then we simply plot the bar chart with the religion factor on the x-axis.
+ggplot(religion_count, aes(relig)) + 
+  geom_bar() +
+  enhance_theme
 
 ```
 
@@ -147,10 +169,12 @@ Remember the ugly plot showing the distribution of reported incomes? We want to 
 
 **Task 4** Group these four levels ("No answer", "Don't know", "Refused", "Not applicable") into one "Other" level and provide a new plot for the distribution of reported incomes.
 
-`r emo::ji("warning")` (Note that you should generally be careful with recoding various levels into one. Is giving "No answer" as answer really to be treated equal to "Don't know"? I don' know- we are doing it for practice reasons here, but in real-world data science, they are probably not the same thing.)
+`r emo::ji("warning")` (Note that you should generally be careful with recoding various levels into one. Is giving "No answer" as answer really to be treated equal to "Don't know"? I don't know- we are doing it for practice reasons here, but in real-world data science, they are probably not the same thing.)
 
 ```{r}
-
+# We use fct_recode() to change the names of multiple levels into a new name, which 
+# in this case is the same name, i.e. the same new "Other" level that the four
+# levels get aggregated into.
 rincome_recoded <- data %>%
   mutate(rincome = fct_recode(rincome,
                               "Other" = "No answer",
@@ -159,32 +183,44 @@ rincome_recoded <- data %>%
                               "Other" = "Not applicable"
                               )) 
 
-ggplot(rincome_recoded, aes(rincome)) + geom_bar()
+# Now we simply have to plot the bar chart of our new dataframe with the 
+# reported income on the x-axis.
+ggplot(rincome_recoded, aes(rincome)) + 
+  geom_bar() + 
+  enhance_theme
 
 ```
 
 Better, but still not nice. Let's aggregate some of the reported income groups into larger income brackets.
 
-**Task 4** Create a bar chart showing three larger reported income brackets than provided in the data, plus the "Other" factor.
+**Task 5** Create a bar chart showing three larger reported income brackets than provided in the data, plus the "Other" factor.
 
 ```{r}
-
+# fct_collapse() is useful when aggregating a lot of levels together into a couple of new levels.
 rincome_recoded_2 <- rincome_recoded %>%
   mutate(rincome = 
            fct_collapse(rincome,
-              "<10000" = c("Lt $1000", "$1000 to 2999", "$3000 to 3999", "$4000 to 4999", "$5000 to 5999", "$6000 to 6999", "$7000 to 7999", "$8000 to 9999"),
-              ">=10000_&_<20000" = c("$10000 - 14999", "$15000 - 19999"),
-              ">=20000" = c("$20000 - 24999", "$25000 or more")))
+              "low" = c("Lt $1000", "$1000 to 2999", "$3000 to 3999", "$4000 to 4999", 
+                           "$5000 to 5999", "$6000 to 6999", "$7000 to 7999", "$8000 to 9999"),
+              "medium" = c("$10000 - 14999", "$15000 - 19999"),
+              "high" = c("$20000 - 24999", "$25000 or more")))
 
-ggplot(rincome_recoded_2, aes(rincome)) + geom_bar()
+# It would be necessary to include information about what low, medium and high 
+# stand for exactly- but this is the content of other sessions :)
 
+# Simply plot the bar chart with the new dataframe and the reported income on the x-axis.
+ggplot(rincome_recoded_2, aes(rincome)) + 
+  geom_bar() + 
+  enhance_theme
 
 ```
 
 
-Thank you for joining this tutorial! 
+Thank you for joining this tutorial! `r emo::ji("smile")`
 
-For more exercises, try the [Introduction to forcats](https://forcats.tidyverse.org/articles/forcats.html) by Emily Robinson, or for easier examples look at "Getting started" section on the [forcats Website](https://forcats.tidyverse.org).
+# Learn more `r emo::ji("nerd")`
+
+For more exercises, try the [Introduction to forcats](https://forcats.tidyverse.org/articles/forcats.html) by Emily Robinson, or for easier examples look at the "Getting started" section on the [forcats Website](https://forcats.tidyverse.org).
 For an academic deep-dive into forcats and categorical variables, look at the paper [Wrangling categorical data with R](https://peerj.com/preprints/3163/) by Amelia McNamara and Nicholas J Horton.
 
 
