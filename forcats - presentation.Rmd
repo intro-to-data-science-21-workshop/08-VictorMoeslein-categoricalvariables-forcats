@@ -1,0 +1,699 @@
+---
+title: "forcats"
+author: "Janine De Vera and Victor Möslein"
+date: "2021 November 04"
+output:
+  ioslides_presentation: default
+  incremental: true
+---
+
+<style type = "text/css">
+h2 {color: #0077b7;}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r packages, include=FALSE}
+pacman::p_load(tidyverse, knitr, kableExtra)
+```
+
+```{r theme, include=FALSE}
+charts_theme <- theme(axis.line.x = element_line("transparent", size = 0.5), 
+                      axis.line.y = element_line("transparent", size = 0.5),
+                      axis.title.y.left = element_text(size = 12, margin = margin(r = 15)),
+                      axis.title.y.right = element_text(size = 12, margin = margin(l = 15)),
+                      axis.title.x = element_text(size = 12, margin = margin(t = 15)),
+                      panel.border = element_rect(color = "#a3a3a3", fill = "transparent"),
+                      panel.background = element_rect(fill = "white", color = "white"),
+                      panel.grid.major = element_line(color = "#d4d4d4", linetype = 2),
+                      plot.title = element_text(size = 14, hjust = 0.5),
+                      plot.subtitle = element_text(size = 12, face = "italic", hjust = 0.5, margin = margin(b = 15)),
+                      legend.background = element_rect(fill = "transparent"),
+                      legend.text = element_text(size = 12),
+                      legend.title = element_blank(),
+                      legend.key = element_blank())
+```
+
+## Outline
+1. **Introduction:** data manipulation with `forcats`
+2. **Features:** common uses of `forcats`
+    - Reordering factors
+    - Renaming factors 
+3. **Exercises** 
+
+# Introduction {data-background=#007db7} 
+
+## Dealing with categorical data in R {.build}
+_**Recall:**_ \
+\
+A **categorical variable** is data that takes a limited or finite set of possible values. Assignment of observation to a group or nominal category is often based on a qualitative property. _(e.g. gender, marital status, race)_
+
+## Dealing with categorical data in R {.build}
+
+Categorical variables are stored in R either as _character strings_ or _factors_. \
+
+_**Factors**_ are <u>integer vectors</u> that are mapped to categorical values. Factors contain a `levels` attribute, which is the order at which categorical values are assigned to integers. \
+
+## Dealing with categorical data in R {.build .smaller}
+Suppose we have a variable called `rate` that takes on the values **low**, **medium**, and **high**. When stored as character strings, R will sort the values by alphabetical order. 
+
+`rate <- c("low", "medium", "high")` \
+`sort(rate)`
+```{r}
+rate <- c("low", "medium", "high")
+sort(rate)
+```
+
+When converted into a factor, R will provide additional information on the variable **levels**.
+
+`rate_factor <- as.factor(rate)`
+```{r}
+rate_factor <- as.factor(rate)
+rate_factor
+```
+
+## Dealing with categorical data in R {.build .smaller}
+
+To illustrate the mapping of categorical values to integers, we will try to recover numeric information from `rate_factor`: 
+
+<font size = 4> `rate_level <- as.numeric(rate_factor)` </font>
+<br>
+<br>
+```{r}
+as.data.frame(rate_factor) %>%
+  mutate(rate_level = as.numeric(rate_factor)) %>% 
+  kable(col.names = c("rate", "rate_level")) %>% 
+  kable_paper() %>% 
+  kable_styling(full_width = F, position = "center")
+```
+\
+Note that if we do this for the original vector, we will not be able to extract any numeric information. 
+
+`as.numeric(rate)`
+```{r, warning = FALSE}
+as.numeric(rate)
+```
+
+
+# Features {data-background=#007db7} 
+
+## Sample {.build .smaller} 
+For demonstration of the features of `forcats`, we will be working with the built-in dataset `gss_cat`. 
+
+The **General Social Survey** is a large long-running survey of US citizens with pertinent socio-economic variables. The sample from `gss_cat` includes results from the years 2000-2014. 
+
+Below is a summary of the data:
+```{r}
+data <- gss_cat 
+head(data, n=5)
+```
+
+## Sample {.build .smaller} 
+Let's examine the factor variable `marital`. \
+
+To access factors levels directly, we can use the function `levels()`. 
+
+`levels(data$marital)`
+```{r}
+levels(data$marital)
+```
+\
+\
+\
+Suppose we want to visualize the percentage share of each marital status in the sample.
+
+## Sample
+```{r}
+m_share <- data %>% 
+  count(marital) %>% 
+  mutate(share = n/sum(n))
+
+ggplot(m_share, aes(x = marital, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = marital,
+                   yend = share,
+                   xend = marital), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Marital Status Categories",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("marital status") +
+  ylab("") +
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  coord_flip()
+```
+
+---
+R displays factor information in charts (and tables) based on the variable's defined levels. \
+
+While the chart was already quite informative, we may want to present the order of our variable in another manner.
+
+# Reordering factors {data-background=#68c5ea} 
+
+## A. Reordering (manual) {.build .smaller}
+
+We can reorder factor levels based on our desired arrangement. 
+
+One option is to **reorder factors manually** using the `fct_relevel()` function. \
+
+The following arguments need to be specified: \
+1. the factor of interest (as a vector) \
+2. the desired factor order \
+
+Recall, the levels of the `marital` variable: 
+```{r}
+levels(data$marital)
+```
+
+## A. Reordering (manual) {.build .smaller}
+If we want the category `Married` to be the first level, we can do so by specifying it as the second argument:
+
+`fct_relevel(data$marital, "Married")`
+```{r}
+data$marital <- fct_relevel(data$marital, "Married")
+levels(data$marital)
+```
+
+We can also use the argument `after` to specify a position. This places `Widowed` after the 2nd level or in the 3rd place: 
+
+`fct_relevel(data$marital, "Widowed", after = 2)`
+```{r}
+data$marital <- fct_relevel(data$marital, "Widowed", after = 2)
+levels(data$marital)
+```
+
+This places `No answer` in the last place: 
+
+`fct_relevel(data$marital, "No answer", after = Inf)`
+```{r}
+data$marital <- fct_relevel(data$marital, "No answer", after = Inf)
+levels(data$marital)
+```
+
+## A. Reordering (manual)
+```{r}
+m_share <- data %>% 
+  count(marital) %>% 
+  mutate(share = n/sum(n))
+
+ggplot(m_share, aes(x = marital, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = marital,
+                   yend = share,
+                   xend = marital), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Marital Status Categories",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("marital status") +
+  ylab("") +
+  scale_y_continuous(labels = function(x) paste0(x*100, "%")) +
+  coord_flip()
+```
+
+## B. Reordering (variable-based) {.build .smaller}
+
+We can also reorder a factor **based on another variable.**
+
+Suppose we want to plot marital status against another variable, `tvhours`, to determine the average number of hours spent watching TV by each group. 
+
+## B. Reordering (variable-based)
+```{r, message=FALSE}
+m_tv <- data %>% 
+  filter(year %in% c(2000, 2014)) %>% 
+  group_by(marital, year) %>% 
+  summarise(across(tvhours, mean, na.rm = T))
+
+ggplot(m_tv, aes(x = marital, y = tvhours)) +
+  geom_segment(m_tv %>% spread(., year, tvhours),
+               mapping = 
+                 aes(y = `2000`,
+                   x = marital,
+                   yend = `2014`,
+                   xend = marital), 
+               color = "#007db7",
+               size = 1.5) +
+  geom_point(aes(color = as.character(year)), stat = "identity", size = 6) +
+  charts_theme + 
+  labs(title = "TV Hours by Marital Status",
+       subtitle = "2000 vs 2014") + 
+  xlab("marital status") +
+  ylab("average tv hours") +
+  scale_y_continuous(limits = c(1,5)) +
+  scale_color_manual(values = c("#007db7", "#f57f29")) +
+  coord_flip()
+```
+
+## B. Reordering (variable-based) {.build .smaller}
+We can make the chart more readable by reporting the `marital` variable in order of average `tvhours`. \
+
+For variable-based reordering, we use the function `fct_reorder()`. 
+
+The following arguments need to be specified: \
+1. the factor of interest (as a vector) \
+2. the variable to base the order on \
+
+`levels(data$marital)`
+```{r}
+levels(m_tv$marital)
+```
+
+`fct_reorder(data$marital, data$tvhours)`
+```{r}
+m_tv$marital <- fct_reorder(m_tv$marital, m_tv$tvhours)
+levels(m_tv$marital)
+```
+
+## B. Reordering (variable-based)
+```{r}
+ggplot(m_tv, aes(x = marital, y = tvhours)) +
+  geom_segment(m_tv %>% spread(., year, tvhours),
+               mapping = 
+                 aes(y = `2000`,
+                   x = marital,
+                   yend = `2014`,
+                   xend = marital), 
+               color = "#007db7",
+               size = 1.5) +
+  geom_point(aes(color = as.character(year)), stat = "identity", size = 6) +
+  charts_theme + 
+  labs(title = "TV Hours by Marital Status",
+       subtitle = "2000 vs 2014") + 
+  xlab("marital status") +
+  ylab("average tv hours") +
+  scale_y_continuous(limits = c(1,5)) +
+  scale_color_manual(values = c("#007db7", "#f57f29")) +
+  coord_flip()
+
+```
+
+## C. Reordering (frequency-based) {.build .smaller}
+Now suppose we want to construct a frequency table for marital status and graph the results. \
+
+```{r}
+mar <- data %>% 
+  filter(year %in% c("2000", "2014")) %>% 
+  select(year, marital) %>% 
+  group_by(year) %>% 
+  count(marital)
+
+mar %>% 
+  spread(., year, n) %>% 
+  kable(col.names = c("Marital Status", "2000", "2014")) %>% 
+  kable_paper() %>% 
+  kable_styling(full_width = F, position = "center")
+```
+
+## C. Reordering (frequency-based) 
+```{r}
+ggplot(mar, aes(x = marital, y = n)) +
+  geom_bar(aes(fill = as.character(year)), 
+           position = "dodge", 
+           stat = "identity", 
+           width = 0.7) +
+  charts_theme + 
+  labs(title = "Marital Status Frequencies",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("marital status") +
+  ylab("frequency") +
+  scale_fill_manual(values = c("#007db7", "#fdb515")) +
+  coord_flip()
+```
+
+## C. Reordering (frequency-based) {.build .smaller}
+We can easily reorder the levels based on how frequent a value appears on the sample using the function `fct_infreq`.
+
+`levels(data$marital)`
+```{r}
+levels(data$marital)
+```
+
+`fct_infreq(data$marital)`
+```{r}
+data$marital <- fct_infreq(data$marital)
+levels(data$marital)
+```
+
+## C. Reordering (frequency-based)
+```{r}
+mar <- data %>% 
+  filter(year %in% c("2000", "2014")) %>% 
+  select(year, marital) %>% 
+  group_by(year) %>% 
+  count(marital)
+
+ggplot(mar, aes(x = marital, y = n)) +
+  geom_bar(aes(fill = as.character(year)), 
+           position = "dodge", 
+           stat = "identity", 
+           width = 0.6) +
+  charts_theme + 
+  labs(title = "Marital Status Frequencies",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("marital status") +
+  ylab("frequency") +
+  scale_fill_manual(values = c("#007db7", "#fdb515")) +
+  coord_flip()
+```
+
+## D. Reordering (reverse) {.build .smaller}
+
+Another useful function is reversing the order of levels using `fct_rev()`.
+
+`levels(data$marital)`
+```{r}
+levels(data$marital)
+```
+
+`fct_rev(data$marital)`
+```{r}
+levels(fct_rev(data$marital))
+```
+
+## D. Reordering (reverse)
+```{r}
+ggplot(mar, aes(x = fct_rev(marital), y = n)) +
+  geom_bar(aes(fill = as.character(year)), 
+           position = "dodge", 
+           stat = "identity", 
+           width = 0.6) +
+  charts_theme + 
+  labs(title = "Marital Status Frequencies",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("marital status") +
+  ylab("frequency") +
+  scale_fill_manual(values = c("#007db7", "#fdb515")) +
+  coord_flip()
+```
+
+# Renaming factors {data-background=#68c5ea} 
+
+## Renaming factors {.build .smaller}
+Another useful feature of `forcats` is changing level **values**. Doing so makes labels clearer for data visualization and also allows us to collapse and combine levels.
+
+Take for example the `partyid` variable which shows the respondent's party affiliation. 
+
+```{r}
+party_share <- data %>% 
+               count(partyid) %>% 
+               mutate(share = round(n/sum(n)*100, 2)) %>% 
+               select(!n)
+
+party_share %>% 
+  kable(col.names = c("Party", "% Share")) %>% 
+  kable_paper() %>% 
+  kable_styling(full_width = F, position = "center")
+```
+
+## Renaming factors
+```{r}
+ggplot(party_share, aes(x = partyid, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = partyid,
+                   yend = share,
+                   xend = partyid), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Political Parties",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("party affilation") +
+  ylab("") +
+  scale_y_continuous(limits = c(0,25),
+    labels = function(x) paste0(x, "%")) +
+  coord_flip()
+```
+
+## A. Renaming (recoding) {.build .smaller}
+
+The `partyid` variable has 10 levels, three of which are not specifically defined - \
+_No answer_, _Don't know_, and _Other party_.
+
+What we may want to do is combine these three into a single category. We can use the function `fct_recode()` to change the labels of the factor levels. 
+
+The following arguments need to be specified: \
+1. the factor of interest (as a vector) \
+2. mapping of new and old factor values \
+
+<font size = 3>
+`data %>%` \
+`mutate(fct_recode(partyid,` \
+`"Other" = "No answer",` \
+`"Other" = "Don't know",` \
+`"Other" = "Other party"))`
+</font>
+
+## A. Renaming (recoding)
+```{r}
+data <- data %>% 
+  mutate(partyid = fct_recode(partyid,
+                   "Other" = "No answer",
+                   "Other" = "Don't know",
+                   "Other" = "Other party"))
+
+party_share <- data %>% 
+               count(partyid) %>% 
+               mutate(share = round(n/sum(n)*100, 2)) %>% 
+               select(!n)
+
+ggplot(party_share, aes(x = partyid, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = partyid,
+                   yend = share,
+                   xend = partyid), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Political Parties",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("party affilation") +
+  ylab("") +
+  scale_y_continuous(limits = c(0,25),
+    labels = function(x) paste0(x, "%")) +
+  coord_flip()
+```
+
+## A. Renaming (recoding) {.build .smaller}
+We can also use the `fct_recode` function to clean up and standardize the values of the factors. 
+
+<font size = 3>
+`data %>%` 
+`mutate(partyid = fct_recode(partyid,` \
+    `"Republican, strong"    = "Strong republican",`\
+    `"Republican, weak"      = "Not str republican",` \
+    `"Independent, near rep" = "Ind,near rep",` \
+    `"Independent, near dem" = "Ind,near dem",` \
+    `"Democrat, weak"        = "Not str democrat",` \
+    `"Democrat, strong"      = "Strong democrat"))` \
+</font>
+
+## A. Renaming (recoding)
+```{r}
+data <- data %>% 
+mutate(partyid = fct_recode(partyid, 
+    "Republican, strong"    = "Strong republican",
+    "Republican, weak"      = "Not str republican",
+    "Independent, near rep" = "Ind,near rep",
+    "Independent, near dem" = "Ind,near dem",
+    "Democrat, weak"        = "Not str democrat",
+    "Democrat, strong"      = "Strong democrat"))
+
+party_share <- data %>% 
+               count(partyid) %>% 
+               mutate(share = round(n/sum(n)*100, 2)) %>% 
+               select(!n)
+
+ggplot(party_share, aes(x = partyid, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = partyid,
+                   yend = share,
+                   xend = partyid), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Political Parties",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("party affilation") +
+  ylab("") +
+  scale_y_continuous(limits = c(0,25),
+    labels = function(x) paste0(x, "%")) +
+  coord_flip()
+```
+
+## B. Renaming (collapsing) {.build .smaller}
+For combining multiple levels together, and even more useful function is `fct_collapse()`. \
+
+The function allows us to map the new value to a vector of old values. 
+
+So if we want to combine all Republicans, Democrats and Independents: 
+
+<font size = 3>
+`data %>%` \
+`mutate(partyid = fct_collapse(partyid,` \
+`Republican = str_subset(data$partyid, "Republican"),` \
+`Independent = str_subset(data$partyid, "Independent"),` \
+`Democrat = str_subset(data$partyid, "Democrat")))` \
+</font>
+
+```{r}
+data <- data %>% mutate(partyid = 
+           fct_collapse(partyid,
+                        Republican = str_subset(data$partyid, "Republican"),
+                        Independent = str_subset(data$partyid, "Independent"),
+                        Democrat = str_subset(data$partyid, "Democrat")))
+```
+
+## B. Renaming (collapsing)
+```{r}
+party_share <- data %>% 
+               count(partyid) %>% 
+               mutate(share = round(n/sum(n)*100, 2)) %>% 
+               select(!n)
+
+ggplot(party_share, aes(x = partyid, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = partyid,
+                   yend = share,
+                   xend = partyid), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Political Parties",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("party affilation") +
+  ylab("") +
+  scale_y_continuous(limits = c(0,50),
+    labels = function(x) paste0(x, "%")) +
+  coord_flip()
+```
+
+## C. Renaming (lumping) {.build .smaller}
+If there are no specific values that we want to collapse together, we may also want to just lump the smallest values into a single category. 
+
+To do this we use the `fct_lump` function. 
+
+The following arguments need to be specified: \
+1. the factor of interest (as a vector) \
+2. the number of categories that we want to retain \
+
+## C. Renaming (lumping) {.build .smaller}
+
+We have the original table:
+<br>
+<br>
+```{r}
+data <- gss_cat
+
+data %>% 
+  count(partyid) %>% 
+  mutate(share = round(n/sum(n)*100, 2)) %>% 
+  select(!n) %>% 
+  kable(col.names = c("Party", "% Share")) %>% 
+  kable_paper() %>% 
+  kable_styling(full_width = F, position = "center")
+```
+
+## C. Renaming (lumping) {.build .smaller}
+And we want to retain only the top 4 categories and move the rest to the _"Other"_ category. 
+
+`data %>%` 
+`mutate(partyid = fct_lump(partyid, n = 4))`
+
+```{r}
+data <- data %>% 
+  mutate(partyid = fct_lump(partyid, n = 4))
+
+data %>% 
+  count(partyid) %>% 
+  mutate(share = round(n/sum(n)*100, 2)) %>% 
+  select(!n) %>% 
+  kable(col.names = c("Party", "% Share")) %>% 
+  kable_paper() %>% 
+  kable_styling(full_width = F, position = "center")
+
+```
+
+## C. Renaming (lumping)
+```{r}
+party_share <- data %>% 
+               count(partyid) %>% 
+               mutate(share = round(n/sum(n)*100, 2))
+
+ggplot(party_share, aes(x = partyid, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = partyid,
+                   yend = share,
+                   xend = partyid), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Political Parties",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("party affilation") +
+  ylab("") +
+  scale_y_continuous(limits = c(0,50),
+    labels = function(x) paste0(x, "%")) +
+  coord_flip()
+```
+
+## C. Renaming (lumping) {.build .smaller}
+As a review, we reorder the factor based on the share:
+
+`data %>%` 
+`mutate(partyid = fct_reorder(partyid, share))`
+
+## C. Renaming (lumping)
+
+```{r}
+party_share <- party_share %>% 
+               mutate(partyid = fct_reorder(partyid, share))
+
+ggplot(party_share, aes(x = partyid, y = share)) +
+  geom_point(color = "#007db7", stat = "identity", size = 6) +
+  geom_segment(aes(y = 0,
+                   x = partyid,
+                   yend = share,
+                   xend = partyid), 
+               color = "#007db7",
+               size = 1.5) +
+  charts_theme + 
+  labs(title = "Share of Political Parties",
+       subtitle = "General Social Survey, 2000-2014") +
+  xlab("party affilation") +
+  ylab("") +
+  scale_y_continuous(limits = c(0,50),
+    labels = function(x) paste0(x, "%")) +
+  coord_flip()
+```
+
+# Summary {data-background=#68c5ea}
+
+## forcats functions {.build .smaller}
+
+For **reordering factors**: \
+
+1. `fct_relevel()` - for reordering factors manually or by hand \
+2. `fct_reorder()` - for reordering factors based on another variable \
+3. `fct_infreq()` - for reordering factors based on frequency \
+4. `fct_rev()` - for reversing the order of factors \
+
+<br>
+
+For **renaming factors**: \
+
+1. `fct_recode()` - for renaming factor levels manually or by hand \
+2. `fct_collapse()` - for combining multiple factor levels \
+3. `fct_lump()` - for combining most infrequent factor levels
+
+# Exercises {data-background=#007db7} 
