@@ -327,7 +327,7 @@ ggplot(mar, aes(x = marital, y = n)) +
 ```
 
 ## C. Reordering (frequency-based) {.build .smaller}
-We can easily reorder the levels based on how frequent a value appears on the sample using the function `fct_infreq`.
+We can easily reorder the levels based on how frequent a value appears on the sample using the function `fct_infreq()`.
 
 `levels(data$marital)`
 ```{r}
@@ -482,7 +482,7 @@ ggplot(party_share, aes(x = partyid, y = share)) +
 ```
 
 ## A. Renaming (recoding) {.build .smaller}
-We can also use the `fct_recode` function to clean up and standardize the values of the factors. 
+We can also use the `fct_recode()` function to clean up and standardize the values of the factors. 
 
 <font size = 3>
 `data %>%` 
@@ -580,7 +580,7 @@ ggplot(party_share, aes(x = partyid, y = share)) +
 ## C. Renaming (lumping) {.build .smaller}
 If there are no specific values that we want to collapse together, we may also want to just lump the smallest values into a single category. 
 
-To do this we use the `fct_lump` function. 
+To do this we use the `fct_lump()` function. 
 
 The following arguments need to be specified: \
 1. the factor of interest (as a vector) \
@@ -695,5 +695,12 @@ For **renaming factors**: \
 1. `fct_recode()` - for renaming factor levels manually or by hand \
 2. `fct_collapse()` - for combining multiple factor levels \
 3. `fct_lump()` - for combining most infrequent factor levels
+
+# References {data-background=#68c5ea}
+
+## References
+
+1. Tidyverse forcats tutorial: https://forcats.tidyverse.org \
+2. R for Data Science, Chapter 15 Factors: https://r4ds.had.co.nz/factors.html
 
 # Exercises {data-background=#007db7} 
