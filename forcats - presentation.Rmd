@@ -698,7 +698,7 @@ For **renaming factors**: \
 
 # References {data-background=#68c5ea}
 
-## References
+## References {.build}
 
 1. Tidyverse forcats tutorial: https://forcats.tidyverse.org \
 2. R for Data Science, Chapter 15 Factors: https://r4ds.had.co.nz/factors.html
