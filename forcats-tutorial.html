@@ -363,8 +363,14 @@ div.tocify {
   </script>
 </div>
 <p>Alternatively, we can also draw a bar chart to see the levels.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(rincome)) <span class="sc">+</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() </span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This code just makes all the following graphs nicer to look at.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>enhance_theme <span class="ot">&lt;-</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>() , </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.major.y =</span> <span class="fu">element_line</span>( <span class="at">size=</span>.<span class="dv">1</span>, <span class="at">color=</span><span class="st">&quot;black&quot;</span> ))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(rincome)) <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  enhance_theme</span></code></pre></div>
 <p><img src="forcats-tutorial_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>We already see a challenge arising here: the factor has too many levels, which makes the plot look really messy. Soon, we will find out how to deal with issues like these.</p>
 <p>When working with factors, the two main operations are</p>
@@ -373,60 +379,98 @@ div.tocify {
 <p>The functions of <code>forcats</code> are built to deal with these two tasks, which we will do now. In this tutorial, we will focus on the application of the functions in plots to make the functionalities more visual.</p>
 </div>
 <div id="exercises" class="section level1">
-<h1>Exercises 👩‍🏭</h1>
-<p><strong>Task 1</strong> Investigate the average age across the party identifications. Reorder the levels so that the overall trend becomes easily visible. Plot the result in a graph.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>partyid_age_average <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(partyid) <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(partyid_age_average, <span class="fu">aes</span>(age, <span class="fu">fct_reorder</span>(partyid, age))) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code></pre></div>
+<h1>Exercises 🔨</h1>
+<p><strong>Task 1</strong> Investigate the average age across the party identifications and plot the result in a graph. Reorder the levels so that the overall trend becomes easily visible.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, we create a new dataframe that includes the average ages.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>partyid_age_average <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(partyid) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we use the fct_reorder() function in the y-axis description of the plot aesthetics </span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># to have the party identification with the highest average age </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># on top and the lowest on the bottom.</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(partyid_age_average, <span class="fu">aes</span>(age, <span class="fu">fct_reorder</span>(partyid, age))) <span class="sc">+</span> </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  enhance_theme</span></code></pre></div>
 <p><img src="forcats-tutorial_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>Note that fct_reorder() is only useful if the factor has levels that aren’t already ordered. For example, it wouldn’t make sense to reorder the levels of the rincome variable in this dataset, as its levels are already ordered.</p>
-<p><strong>Task 2</strong> Investigate the average number of hours spent watching tv per day across the income groups. Pull the “Not applicable” level to the front. Plot the result in a graph.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>rincome_age_average <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(rincome) <span class="sc">%&gt;%</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">tvhours =</span> <span class="fu">mean</span>(tvhours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rincome_age_average, <span class="fu">aes</span>(tvhours, <span class="fu">fct_relevel</span>(rincome, <span class="st">&quot;Not applicable&quot;</span>))) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code></pre></div>
+<p><strong>Task 2</strong> Investigate the average number of hours spent watching TV per day across the reported income groups and plot the result in a graph. Pull the “Not applicable” level to the front.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Again, we create a dataframe first that shows the average hours spent watching TV per </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># reported income group.</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>rincome_tv_average <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(rincome) <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">tvhours =</span> <span class="fu">mean</span>(tvhours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># We then use fct_relevel() in the y-axis description of the plot aesthetics to pull</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># &quot;Not applicable&quot; to the bottom.</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rincome_tv_average, <span class="fu">aes</span>(tvhours, <span class="fu">fct_relevel</span>(rincome, <span class="st">&quot;Not applicable&quot;</span>))) <span class="sc">+</span> </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  enhance_theme</span></code></pre></div>
 <p><img src="forcats-tutorial_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p><strong>Task 3</strong> Provide a bar chart showing the three largest levels of the <code>relig</code> factor in increasing order. Aggregate the other religions into an “Other” level.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>religion_count <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">relig =</span> <span class="fu">fct_lump</span>(relig, <span class="at">n =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_infreq</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_rev</span>())</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(religion_count, <span class="fu">aes</span>(relig)) <span class="sc">+</span> <span class="fu">geom_bar</span>() </span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We create a new dataframe, where we aggregate the smaller religions together into</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># an &quot;Other&quot; level using fct_lump(), keeping the 3 largest religions.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we use fct_infreq() to sort the data in increasing order of the frequencies,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and fct_rev() to make the largest level appear on the right in the plot and the </span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># lowest on the left.</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>religion_count <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">relig =</span> <span class="fu">fct_lump</span>(relig, <span class="at">n =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_infreq</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_rev</span>())</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we simply plot the bar chart with the religion factor on the x-axis.</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(religion_count, <span class="fu">aes</span>(relig)) <span class="sc">+</span> </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  enhance_theme</span></code></pre></div>
 <p><img src="forcats-tutorial_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>Remember the ugly plot showing the distribution of reported incomes? We want to make it look nicer now. In the first step, we want to change the values of levels that have no data- either because the survey participant refused to answer, didn’t know his income (weird but ok), simply didn’t answer or it was not applicable.</p>
 <p><strong>Task 4</strong> Group these four levels (“No answer”, “Don’t know”, “Refused”, “Not applicable”) into one “Other” level and provide a new plot for the distribution of reported incomes.</p>
-<p>⚠️ (Note that you should generally be careful with recoding various levels into one. Is giving “No answer” as answer really to be treated equal to “Don’t know”? I don’ know- we are doing it for practice reasons here, but in real-world data science, they are probably not the same thing.)</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>rincome_recoded <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rincome =</span> <span class="fu">fct_recode</span>(rincome,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;No answer&quot;</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Don&#39;t know&quot;</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Refused&quot;</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Not applicable&quot;</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                              )) </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rincome_recoded, <span class="fu">aes</span>(rincome)) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code></pre></div>
+<p>⚠️ (Note that you should generally be careful with recoding various levels into one. Is giving “No answer” as answer really to be treated equal to “Don’t know”? I don’t know- we are doing it for practice reasons here, but in real-world data science, they are probably not the same thing.)</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use fct_recode() to change the names of multiple levels into a new name, which </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># in this case is the same name, i.e. the same new &quot;Other&quot; level that the four</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># levels get aggregated into.</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>rincome_recoded <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rincome =</span> <span class="fu">fct_recode</span>(rincome,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;No answer&quot;</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Don&#39;t know&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Refused&quot;</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;Other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Not applicable&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                              )) </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we simply have to plot the bar chart of our new dataframe with the </span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># reported income on the x-axis.</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rincome_recoded, <span class="fu">aes</span>(rincome)) <span class="sc">+</span> </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span> </span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  enhance_theme</span></code></pre></div>
 <p><img src="forcats-tutorial_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>Better, but still not nice. Let’s aggregate some of the reported income groups into larger income brackets.</p>
-<p><strong>Task 4</strong> Create a bar chart showing three larger reported income brackets than provided in the data, plus the “Other” factor.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rincome_recoded_2 <span class="ot">&lt;-</span> rincome_recoded <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rincome =</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_collapse</span>(rincome,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;&lt;10000&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Lt $1000&quot;</span>, <span class="st">&quot;$1000 to 2999&quot;</span>, <span class="st">&quot;$3000 to 3999&quot;</span>, <span class="st">&quot;$4000 to 4999&quot;</span>, <span class="st">&quot;$5000 to 5999&quot;</span>, <span class="st">&quot;$6000 to 6999&quot;</span>, <span class="st">&quot;$7000 to 7999&quot;</span>, <span class="st">&quot;$8000 to 9999&quot;</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;&gt;=10000_&amp;_&lt;20000&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;$10000 - 14999&quot;</span>, <span class="st">&quot;$15000 - 19999&quot;</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;&gt;=20000&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;$20000 - 24999&quot;</span>, <span class="st">&quot;$25000 or more&quot;</span>)))</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rincome_recoded_2, <span class="fu">aes</span>(rincome)) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code></pre></div>
+<p><strong>Task 5</strong> Create a bar chart showing three larger reported income brackets than provided in the data, plus the “Other” factor.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fct_collapse() is useful when aggregating a lot of levels together into a couple of new levels.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>rincome_recoded_2 <span class="ot">&lt;-</span> rincome_recoded <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rincome =</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">fct_collapse</span>(rincome,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;low&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Lt $1000&quot;</span>, <span class="st">&quot;$1000 to 2999&quot;</span>, <span class="st">&quot;$3000 to 3999&quot;</span>, <span class="st">&quot;$4000 to 4999&quot;</span>, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                           <span class="st">&quot;$5000 to 5999&quot;</span>, <span class="st">&quot;$6000 to 6999&quot;</span>, <span class="st">&quot;$7000 to 7999&quot;</span>, <span class="st">&quot;$8000 to 9999&quot;</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;medium&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;$10000 - 14999&quot;</span>, <span class="st">&quot;$15000 - 19999&quot;</span>),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;high&quot;</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;$20000 - 24999&quot;</span>, <span class="st">&quot;$25000 or more&quot;</span>)))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># It would be necessary to include information about what low, medium and high </span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># stand for exactly- but this is the content of other sessions :)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Simply plot the bar chart with the new dataframe and the reported income on the x-axis.</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rincome_recoded_2, <span class="fu">aes</span>(rincome)) <span class="sc">+</span> </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span> </span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  enhance_theme</span></code></pre></div>
 <p><img src="forcats-tutorial_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
-<p>Thank you for joining this tutorial!</p>
-<p>For more exercises, try the <a href="https://forcats.tidyverse.org/articles/forcats.html">Introduction to forcats</a> by Emily Robinson, or for easier examples look at “Getting started” section on the <a href="https://forcats.tidyverse.org">forcats Website</a>. For an academic deep-dive into forcats and categorical variables, look at the paper <a href="https://peerj.com/preprints/3163/">Wrangling categorical data with R</a> by Amelia McNamara and Nicholas J Horton.</p>
+<p>Thank you for joining this tutorial! 😄</p>
+</div>
+<div id="learn-more" class="section level1">
+<h1>Learn more 🤓</h1>
+<p>For more exercises, try the <a href="https://forcats.tidyverse.org/articles/forcats.html">Introduction to forcats</a> by Emily Robinson, or for easier examples look at the “Getting started” section on the <a href="https://forcats.tidyverse.org">forcats Website</a>. For an academic deep-dive into forcats and categorical variables, look at the paper <a href="https://peerj.com/preprints/3163/">Wrangling categorical data with R</a> by Amelia McNamara and Nicholas J Horton.</p>
 </div>
 <div id="sources" class="section level1">
 <h1>Sources</h1>
