@@ -54,10 +54,10 @@ A **categorical variable** is data that takes a limited or finite set of possibl
 
 Categorical variables are stored in R either as _character strings_ or _factors_. \
 
-_**Factors**_ are <u>integer vectors</u> that are mapped to categorical values. Factors contain a `levels` attribute, which is the order at which categorical values are assigned to integers. \
+_**Factors**_ are <u>integer vectors</u> that are **mapped to categorical values**. Factors contain a `levels` attribute, which is the order at which categorical values are assigned to integers. \
 
 ## Dealing with categorical data in R {.build .smaller}
-Suppose we have a variable called `rate` that takes on the values **low**, **medium**, and **high**. When stored as character strings, R will sort the values by alphabetical order. 
+Suppose we have a variable called `rate` that takes on the values **low**, **medium**, and **high**. When stored as a character vector, R sorts the values by alphabetical order. 
 
 `rate <- c("low", "medium", "high")` \
 `sort(rate)`
@@ -76,7 +76,7 @@ rate_factor
 
 ## Dealing with categorical data in R {.build .smaller}
 
-To illustrate the mapping of categorical values to integers, we will try to recover numeric information from `rate_factor`: 
+To illustrate the mapping of categorical values to integers, we will recover numeric information from `rate_factor`: 
 
 <font size = 4> `rate_level <- as.numeric(rate_factor)` </font>
 <br>
@@ -102,7 +102,7 @@ as.numeric(rate)
 ## Sample {.build .smaller} 
 For demonstration of the features of `forcats`, we will be working with the built-in dataset `gss_cat`. 
 
-The **General Social Survey** is a large long-running survey of US citizens with pertinent socio-economic variables. The sample from `gss_cat` includes results from the years 2000-2014. 
+The **General Social Survey** is a large long-running survey of US citizens which reports various socio-economic variables. The sample from `gss_cat` includes results from the years 2000-2014. 
 
 Below is a summary of the data:
 ```{r}
@@ -294,7 +294,9 @@ ggplot(m_tv, aes(x = marital, y = tvhours)) +
 ```
 
 ## C. Reordering (frequency-based) {.build .smaller}
-Now suppose we want to construct a frequency table for marital status and graph the results. \
+We can also reorder factors **based on frequency**. \
+
+Suppose we want have a look at number of time each marital category appears in the sample. \
 
 ```{r}
 mar <- data %>% 
@@ -701,6 +703,7 @@ For **renaming factors**: \
 ## References {.build}
 
 1. Tidyverse forcats tutorial: https://forcats.tidyverse.org \
-2. R for Data Science, Chapter 15 Factors: https://r4ds.had.co.nz/factors.html
+2. R for Data Science, Chapter 15 Factors: https://r4ds.had.co.nz/factors.html \
+3. Wrangling Categorical Data in R (McNamara and Horton, 2017)
 
 # Exercises {data-background=#007db7} 
