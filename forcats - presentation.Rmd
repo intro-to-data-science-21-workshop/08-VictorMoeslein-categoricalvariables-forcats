@@ -296,7 +296,7 @@ ggplot(m_tv, aes(x = marital, y = tvhours)) +
 ## C. Reordering (frequency-based) {.build .smaller}
 We can also reorder factors **based on frequency**. \
 
-Suppose we want have a look at number of time each marital category appears in the sample. \
+Suppose we want have a look at number of times each marital category appears in the sample. \
 
 ```{r}
 mar <- data %>% 
@@ -329,7 +329,7 @@ ggplot(mar, aes(x = marital, y = n)) +
 ```
 
 ## C. Reordering (frequency-based) {.build .smaller}
-We can easily reorder the levels based on how frequent a value appears on the sample using the function `fct_infreq()`.
+We can easily reorder levels based on how frequent a value appears in the data using the function `fct_infreq()`.
 
 `levels(data$marital)`
 ```{r}
@@ -366,7 +366,7 @@ ggplot(mar, aes(x = marital, y = n)) +
 
 ## D. Reordering (reverse) {.build .smaller}
 
-Another useful function is reversing the order of levels using `fct_rev()`.
+Another useful function is **reversing the order** of levels using `fct_rev()`.
 
 `levels(data$marital)`
 ```{r}
