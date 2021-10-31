@@ -54,7 +54,7 @@ A **categorical variable** is data that takes a limited or finite set of possibl
 
 Categorical variables are stored in R either as _character strings_ or _factors_. \
 
-_**Factors**_ are <u>integer vectors</u> that are **mapped to categorical values**. Factors contain a `levels` attribute, which is the order at which categorical values are assigned to integers. \
+_**Factors**_ are <u>integer vectors</u> that are <u>mapped to categorical values</u>. Factors contain a `levels` attribute, which is the order at which categorical values are assigned to integers. \
 
 ## Dealing with categorical data in R {.build .smaller}
 Suppose we have a variable called `rate` that takes on the values **low**, **medium**, and **high**. When stored as a character vector, R sorts the values by alphabetical order. 
