@@ -7,7 +7,7 @@ This repository provides materials for a session that is part of the [I2DS Tools
 
 ## Session contents 
 
-This session will introduce you to manipulating categorical variables in R using `forcats`. `forcats` is the R package to work with factors. \
+This session will introduce you to manipulating categorical variables in R using `forcats`. `forcats` is the R package to work with factors.
 
 A factor is the R data structure for categorical data, that is, variables having a fixed and known set of possible values. Factors are useful when working with character vectors that need to be ordered, for visualization purposes and for conducting statistical analysis dealing with ordered data (e.g. ordinal regressions).
 
