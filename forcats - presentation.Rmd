@@ -434,57 +434,11 @@ ggplot(party_share, aes(x = partyid, y = share)) +
 ```
 
 ## A. Renaming (recoding) {.build .smaller}
-
-The `partyid` variable has 10 levels, three of which are not specifically defined - \
-_No answer_, _Don't know_, and _Other party_.
-
-What we may want to do is combine these three into a single category. We can use the function `fct_recode()` to change the labels of the factor levels. 
+We can use the `fct_recode()` function to clean up and standardize the values or labels of the factors. \
 
 The following arguments need to be specified: \
 1. the factor of interest (as a vector) \
 2. mapping of new and old factor values \
-
-<font size = 3>
-`data %>%` \
-`mutate(fct_recode(partyid,` \
-`"Other" = "No answer",` \
-`"Other" = "Don't know",` \
-`"Other" = "Other party"))`
-</font>
-
-## A. Renaming (recoding)
-```{r}
-data <- data %>% 
-  mutate(partyid = fct_recode(partyid,
-                   "Other" = "No answer",
-                   "Other" = "Don't know",
-                   "Other" = "Other party"))
-
-party_share <- data %>% 
-               count(partyid) %>% 
-               mutate(share = round(n/sum(n)*100, 2)) %>% 
-               select(!n)
-
-ggplot(party_share, aes(x = partyid, y = share)) +
-  geom_point(color = "#007db7", stat = "identity", size = 6) +
-  geom_segment(aes(y = 0,
-                   x = partyid,
-                   yend = share,
-                   xend = partyid), 
-               color = "#007db7",
-               size = 1.5) +
-  charts_theme + 
-  labs(title = "Share of Political Parties",
-       subtitle = "General Social Survey, 2000-2014") +
-  xlab("party affilation") +
-  ylab("") +
-  scale_y_continuous(limits = c(0,25),
-    labels = function(x) paste0(x, "%")) +
-  coord_flip()
-```
-
-## A. Renaming (recoding) {.build .smaller}
-We can also use the `fct_recode()` function to clean up and standardize the values of the factors. 
 
 <font size = 3>
 `data %>%` 
@@ -499,6 +453,12 @@ We can also use the `fct_recode()` function to clean up and standardize the valu
 
 ## A. Renaming (recoding)
 ```{r}
+data <- data %>% 
+  mutate(partyid = fct_recode(partyid,
+                   "Other" = "No answer",
+                   "Other" = "Don't know",
+                   "Other" = "Other party"))
+
 data <- data %>% 
 mutate(partyid = fct_recode(partyid, 
     "Republican, strong"    = "Strong republican",
@@ -532,26 +492,28 @@ ggplot(party_share, aes(x = partyid, y = share)) +
 ```
 
 ## B. Renaming (collapsing) {.build .smaller}
-For combining multiple levels together, and even more useful function is `fct_collapse()`. \
+For combining multiple levels together, we can use the function is `fct_collapse()`. \
 
-The function allows us to map the new value to a vector of old values. 
+The following arguments need to be specified: \
+1. the factor of interest (as a vector) \
+2. mapping of new values to a vector of old factor values \
 
 So if we want to combine all Republicans, Democrats and Independents: 
 
 <font size = 3>
 `data %>%` \
 `mutate(partyid = fct_collapse(partyid,` \
-`Republican = str_subset(data$partyid, "Republican"),` \
-`Independent = str_subset(data$partyid, "Independent"),` \
-`Democrat = str_subset(data$partyid, "Democrat")))` \
+`Republican = str_subset(partyid, "Republican"),` \
+`Independent = str_subset(partyid, "Independent"),` \
+`Democrat = str_subset(partyid, "Democrat")))` \
 </font>
 
 ```{r}
 data <- data %>% mutate(partyid = 
            fct_collapse(partyid,
-                        Republican = str_subset(data$partyid, "Republican"),
-                        Independent = str_subset(data$partyid, "Independent"),
-                        Democrat = str_subset(data$partyid, "Democrat")))
+                        Republican = str_subset(partyid, "Republican"),
+                        Independent = str_subset(partyid, "Independent"),
+                        Democrat = str_subset(partyid, "Democrat")))
 ```
 
 ## B. Renaming (collapsing)
